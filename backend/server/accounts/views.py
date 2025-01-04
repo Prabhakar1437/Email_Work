@@ -5,6 +5,24 @@ from .models import User
 from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 
+class GoogleLoginAPIView(APIView):
+    def post(self, request):
+        email = request.data.get("email")
+        name = request.data.get("name")
+        image = request.data.get("image")
+
+        if not email:
+            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if user already exists
+        user, created = User.objects.get_or_create(email=email)
+        if created:
+            user.username = email.split("@")[0]
+            user.first_name = name.split(" ")[0]
+            user.last_name = " ".join(name.split(" ")[1:])
+            user.save()
+
+        return Response({"message": "User saved successfully"}, status=status.HTTP_200_OK)
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -29,3 +47,6 @@ class LoginView(APIView):
             return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
         except User.DoesNotExist:
             return Response({"message": "User with this email does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+
+

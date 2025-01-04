@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import axios from "axios";
 
 export default function Signup() {
@@ -13,6 +14,7 @@ export default function Signup() {
         first_name: "",
         last_name: "",
     });
+    const [errorMessage, setErrorMessage] = useState("");
 
     const router = useRouter();
 
@@ -22,13 +24,19 @@ export default function Signup() {
             await axios.post("http://127.0.0.1:8000/api/accounts/register/", formData);
             alert("Registration successful!");
             router.push("/login");
-        } catch (error) {
-            alert("Error during registration");
+        } catch (error: any) {
+            setErrorMessage(
+                error.response?.data?.message || "Error during registration. Please try again."
+            );
         }
     };
 
+    const handleGoogleSignup = () => {
+        signIn("google");
+    };
+
     return (
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center h-screen bg-gray-100">
             <div className="absolute top-4 left-4">
                 <Link href="/">
                     <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
@@ -41,6 +49,11 @@ export default function Signup() {
                 onSubmit={handleSubmit}
             >
                 <h1 className="text-2xl font-bold mb-4 text-center">Register</h1>
+                {errorMessage && (
+                    <div className="text-red-500 text-sm text-center mb-4">
+                        {errorMessage}
+                    </div>
+                )}
                 <input
                     type="text"
                     placeholder="First Name"
@@ -88,9 +101,16 @@ export default function Signup() {
                 />
                 <button
                     type="submit"
-                    className="bg-green-500 text-white p-2 w-full rounded"
+                    className="bg-green-500 text-white p-2 w-full rounded mb-4"
                 >
                     Sign Up
+                </button>
+                <button
+                    type="button"
+                    onClick={handleGoogleSignup}
+                    className="bg-red-500 text-white p-2 w-full rounded"
+                >
+                    Continue with Google
                 </button>
             </form>
         </div>
