@@ -21,7 +21,7 @@ export default function Signup() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await axios.post("http://127.0.0.1:8000/api/accounts/register/", formData);
+            await axios.post("http://127.0.0.1:8000/api/register/", formData);
             alert("Registration successful!");
             router.push("/login");
         } catch (error: any) {
